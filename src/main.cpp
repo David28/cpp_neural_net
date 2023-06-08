@@ -3,7 +3,7 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
-#include <plot.hpp>
+#include <Plot.hpp>
 
 const int winSize_x = 1920;
 const int winSize_y = 1080;
@@ -21,10 +21,10 @@ int main()
 	sf::Clock clock;
 	sf::Vector2i graphSize(winSize_x / 2, winSize_y / 2);
 
-	std::vector<point> points = getRandomPoints(graphSize);
+	std::vector<Point> points = getRandomPoints(graphSize);
 	splitInTwoGroups(&points, sf::Color::Blue);
 
-	plot scatter_plot(points, graphSize, 5, &window);
+	Plot scatter_plot(points, graphSize, 5, &window);
 
 	while (window.isOpen())
 	{
@@ -33,7 +33,7 @@ int main()
 		deltaTime = (frameTime < 1 / 60.0) ? frameTime : 1 / 60.0;
 		sf::Event event;
 
-		sf::Vector2i point;
+		sf::Vector2i Point;
 
 		while (window.pollEvent(event))
 		{

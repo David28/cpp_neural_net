@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <plot.hpp>
+#include <Plot.hpp>
 #include <utils.hpp>
 
-plot::plot(std::vector<point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window)
+Plot::Plot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window)
     : points(points), graphSize(graphSize), pointWidth(pointWidth)
 {
     this->window = window;
@@ -16,16 +16,16 @@ plot::plot(std::vector<point> points, sf::Vector2i graphSize, int pointWidth, sf
 
 }
 
-plot::~plot()
+Plot::~Plot()
 {
     window->close(); // close window
 }
 
-void plot::addPoint(point newPoint) {
+void Plot::addPoint(Point newPoint) {
     points.push_back(newPoint);
 }
 
-void plot::drawPlot()
+void Plot::drawPlot()
 {
     
     
@@ -46,20 +46,20 @@ void plot::drawPlot()
     window->draw(xAxis);
     window->draw(yAxis);
     // draw points
-    for (point point : points) {
-        point.drawPoint(origin, pointWidth, window);
+    for (Point Point : points) {
+        Point.drawPoint(origin, pointWidth, window);
     }
 }
 
 
-point::point(sf::Vector2f position, sf::Color color)
+Point::Point(sf::Vector2f position, sf::Color color)
     : pos(position), color(color)
 {
 }
 
 
 
-void point::drawPoint(sf::Vector2f origin, float width, sf::RenderWindow *window)
+void Point::drawPoint(sf::Vector2f origin, float width, sf::RenderWindow *window)
 {
     sf::CircleShape circle(width);
     circle.setFillColor(color);
@@ -67,37 +67,37 @@ void point::drawPoint(sf::Vector2f origin, float width, sf::RenderWindow *window
     window->draw(circle);
 }
 
-sf::Vector2f point::getPosition(){
+sf::Vector2f Point::getPosition(){
     return this->pos;
 }
 
-sf::Color point::getColor(){
+sf::Color Point::getColor(){
     return this->color;
 }
-void point::setColor(sf::Color newColor) {
+void Point::setColor(sf::Color newColor) {
     this->color = newColor;
 }
 
 
-std::vector<point> getRandomPoints(sf::Vector2i graphSize){
-    std::vector<point> points;
+std::vector<Point> getRandomPoints(sf::Vector2i graphSize){
+    std::vector<Point> points;
 
     for (int i = 0; i < 100; i++) {
         float x = (float)(rand() % (graphSize.x));
         float y = (float)(rand() % (graphSize.y));
-		points.push_back(point(sf::Vector2f(x, y), sf::Color::Red));
+		points.push_back(Point(sf::Vector2f(x, y), sf::Color::Red));
     }
 
     return points;
 }
 
-void splitInTwoGroups(std::vector<point>* points, sf::Color otherColor) {
+void splitInTwoGroups(std::vector<Point>* points, sf::Color otherColor) {
 
     // Define random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, points->size()-1);
-    // Choose a random point to start with
+    // Choose a random Point to start with
     int i = dis(gen);
 
     // Calculate group size between 40% and 60% of total number of points
@@ -105,7 +105,7 @@ void splitInTwoGroups(std::vector<point>* points, sf::Color otherColor) {
     int maxGroupSize = (int)std::floor(0.6 * points->size());
     int groupSize = dis(gen) % (maxGroupSize - minGroupSize + 1) + minGroupSize;
 
-    // Sort remaining points by distance to random point
+    // Sort remaining points by distance to random Point
     std::vector<int> sortedIdxs(points->size() - 2);
     for (int j = 0; j < sortedIdxs.size(); j++) {
         sortedIdxs[j] = j;
@@ -113,7 +113,7 @@ void splitInTwoGroups(std::vector<point>* points, sf::Color otherColor) {
     std::sort(sortedIdxs.begin(), sortedIdxs.end(), [&](int a, int b) {
         return euclideanDist((*points)[i].getPosition(), (*points)[a].getPosition()) < euclideanDist((*points)[i].getPosition(), (*points)[b].getPosition());
     });
-    // Assign colors to points based on distance to random point
+    // Assign colors to points based on distance to random Point
     int countGroup1 = 0;
     for (int j = 0; j < sortedIdxs.size(); j++) {
         if (countGroup1 > groupSize)
