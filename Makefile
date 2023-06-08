@@ -1,10 +1,12 @@
-all: compile link open
+OBJECTOS = utils.o plot.o activation.o layer.o neural_network.o main.o
 
-compile:
-	g++ -I inc -c src/main.cpp -o obj/main.o
-	g++ -I inc -c src/plot.cpp -o obj/plot.o
-	g++ -I inc -c src/utils.cpp -o obj/utils.o
-link:
-	g++ obj/main.o obj/utils.o obj/plot.o -o main -L lib -l sfml-graphics -l sfml-window -l sfml-system
+all: link open
+
+
+%.o: src/%.cpp $($@)
+	g++ -I inc -o obj/$@ -c $<	
+
+link: $(OBJECTOS)
+	g++ $(addprefix obj/,$(OBJECTOS)) -o main -L lib -l sfml-graphics -l sfml-window -l sfml-system
 open:
 	main.exe	
