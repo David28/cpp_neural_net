@@ -51,7 +51,9 @@
         "list": "cpp",
         "functional": "cpp",
         "numeric": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.autocompleteAddParentheses": true

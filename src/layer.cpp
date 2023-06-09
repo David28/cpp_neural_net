@@ -1,7 +1,8 @@
 #include <neural/layer.hpp>
 #include <chrono>
 #include <iostream>
-Layer::Layer(int numNodesIn, int numNodesOut) : numNodesIn(numNodesIn), numNodesOut(numNodesOut)
+Layer::Layer(int numNodesIn, int numNodesOut, ActivationType activation) :
+ numNodesIn(numNodesIn), numNodesOut(numNodesOut), activation(activation)
 {
 
     weights.resize(numNodesIn * numNodesOut);
@@ -9,7 +10,6 @@ Layer::Layer(int numNodesIn, int numNodesOut) : numNodesIn(numNodesIn), numNodes
     biases.resize(numNodesOut);
     costGradientB.resize(numNodesOut);
 
-    this->activation = Activation(RELU);
     initializeRandomWeigths();
 }
 

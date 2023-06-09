@@ -1,9 +1,9 @@
 #include <neural/neural_network.hpp>
 #include <cfloat>
-NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes) : layerSizes(layerSizes)
+NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, ActivationType activation) : layerSizes(layerSizes)
 {
     for (int i = 0; i < layerSizes.size() - 1; i++)
-        layers.push_back(Layer(layerSizes[i], layerSizes[i + 1]));
+        layers.push_back(Layer(layerSizes[i], layerSizes[i + 1],activation));
 }
 
 // Run the inputs through the network to predict which class they belong to.
@@ -48,7 +48,6 @@ void NeuralNetwork::learn(std::vector<Point> data, double learnRate)
 
     const double h = 0.0001; // No derivate for now
     double originalCost = cost(data);
-    printf("Cost: %f\n", originalCost);
 
     for (int i = 0; i < layers.size(); i++) {
         Layer *layer = &layers[i];

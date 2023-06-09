@@ -3,58 +3,53 @@
 #include <utils.hpp>
 #include <chrono>
 
-
-Plot::Plot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow *window)
-    : points(points), graphSize(graphSize), pointWidth(pointWidth)
+ScatterPlot::ScatterPlot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow *window)
+    : points(points), graphSize(graphSize), pointWidth(pointWidth), window(window)
 {
-    this->window = window;
 
     sf::Vector2u winSize = window->getSize();
 
     // Centering the graph
-    this->origin = sf::Vector2f(winSize.x / 2 ,
-                                winSize.y / 2 );
+    this->origin = sf::Vector2f(winSize.x / 2,
+                                winSize.y / 2);
 }
 
-Plot::~Plot()
+ScatterPlot::~ScatterPlot()
 {
     window->close(); // close window
 }
 
-void Plot::addPoint(Point newPoint)
+void ScatterPlot::addPoint(Point newPoint)
 {
     points.push_back(newPoint);
 }
 
-void Plot::drawPlot(sf::Uint8 *pixels )
+void ScatterPlot::drawPlot(sf::Sprite background)
 {
-    // Draw background
-    sf::Image image;
-    sf::Sprite sprite;
 
-
-    image.create(graphSize.x, graphSize.y, pixels);
-    sf::Texture texture;
-    texture.loadFromImage(image);
-    sprite.setTexture(texture);
-    sprite.setPosition(sf::Vector2f(origin.x- graphSize
-                                                    .x /2,origin.y-graphSize.y/2) );
-    window->draw(sprite);
+    background.setPosition(sf::Vector2f(origin.x - graphSize
+                                                           .x /
+                                                       2,
+                                        origin.y - graphSize.y / 2));
+    window->draw(background);
 
     // draw X-axis
     sf::VertexArray xAxis(sf::PrimitiveType::Lines, 2);
     xAxis[0].position = sf::Vector2f(origin.x - graphSize
-                                                    .x /2,
-                                     origin.y);;
+                                                        .x /
+                                                    2,
+                                     origin.y);
+    ;
     xAxis[1].position = sf::Vector2f(origin.x + graphSize
-                                                    .x/2,
+                                                        .x /
+                                                    2,
                                      origin.y);
     xAxis[0].color = sf::Color::White;
     xAxis[1].color = sf::Color::White;
     // draw Y-axis
     sf::VertexArray yAxis(sf::PrimitiveType::Lines, 2);
-    yAxis[0].position = sf::Vector2f(origin.x, origin.y + graphSize.y/2);
-    yAxis[1].position = sf::Vector2f(origin.x, origin.y - graphSize.y/2);
+    yAxis[0].position = sf::Vector2f(origin.x, origin.y + graphSize.y / 2);
+    yAxis[1].position = sf::Vector2f(origin.x, origin.y - graphSize.y / 2);
     yAxis[0].color = sf::Color::White;
     yAxis[1].color = sf::Color::White;
 
@@ -67,6 +62,67 @@ void Plot::drawPlot(sf::Uint8 *pixels )
     }
 }
 
+TimePlot::TimePlot(sf::Vector2i graphSize, sf::RenderWindow *window)
+    : graphSize(graphSize), window(window)
+{
+    sf::Vector2u winSize = window->getSize();
+    // Centering the graph
+    this->origin = sf::Vector2f(winSize.x * 0.05, winSize.y * 0.3);
+}
+
+void TimePlot::addPoint(float y)
+{
+    points.push_back(y);
+}
+
+void TimePlot::drawTimePlot()
+{
+    // draw X-axis
+    sf::VertexArray xAxis(sf::PrimitiveType::Lines, 2);
+    xAxis[0].position = origin;
+    ;
+    xAxis[1].position = sf::Vector2f(origin.x + graphSize
+                                                    .x,
+                                     origin.y);
+    xAxis[0].color = sf::Color::White;
+    xAxis[1].color = sf::Color::White;
+    // draw Y-axis
+    sf::VertexArray yAxis(sf::PrimitiveType::Lines, 2);
+    yAxis[0].position = origin;
+    yAxis[1].position = sf::Vector2f(origin.x, origin.y - graphSize.y);
+    yAxis[0].color = sf::Color::White;
+    yAxis[1].color = sf::Color::White;
+
+    window->draw(xAxis);
+    window->draw(yAxis);
+    // draw X-axis
+    if (!points.empty())
+    {
+        sf::VertexArray plot(sf::PrimitiveType::Lines, (points.size() - 1) * 2);
+        // draw points
+        for (int i = 0; i < points.size() - 1; i++)
+        {
+            int plotPoint = i*2;
+
+            double x1 = (((double)i)/points.size());
+            double x2 = (((double)i+1)/points.size());
+            float y1 = points[i];
+            float y2 = points[i + 1];
+            plot[plotPoint].position = sf::Vector2f(x1 * graphSize.x + origin.x, -y1 * graphSize.y + origin.y);
+
+            plot[plotPoint + 1].position = sf::Vector2f(x2 * graphSize.x + origin.x,
+                                                        -y2 * graphSize.y + origin.y);
+            plot[plotPoint].color = sf::Color::Red;
+            plot[plotPoint + 1].color = sf::Color::Red;
+
+
+        }
+        window->draw(plot);
+    }
+}
+
+// -- Points --
+
 Point::Point(sf::Vector2f position, sf::Color color)
     : pos(position), color(color)
 {
@@ -77,12 +133,11 @@ Point::Point(sf::Vector2f position, sf::Color color, std::vector<double> expecte
 {
 }
 
-
 void Point::drawPoint(sf::Vector2f origin, float width, sf::RenderWindow *window, sf::Vector2f scale)
 {
     sf::CircleShape circle(width);
     circle.setFillColor(color);
-    circle.setPosition(sf::Vector2f((this->pos.x*scale.x/2 + origin.x), -this->pos.y*scale.y/2 + origin.y));
+    circle.setPosition(sf::Vector2f((this->pos.x * scale.x / 2 + origin.x), -this->pos.y * scale.y / 2 + origin.y));
     window->draw(circle);
 }
 
@@ -110,17 +165,15 @@ std::vector<double> Point::inputs()
     std::vector<double> res;
     res.push_back(pos.x);
     res.push_back(pos.y);
-    return res;    
+    return res;
 }
-
-
 
 std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints)
 {
     std::vector<Point> points;
     unsigned seed = time(nullptr);
     std::mt19937 gen(seed);
-    std::uniform_real_distribution<float> dis(-1,1);
+    std::uniform_real_distribution<float> dis(-1, 1);
     for (int i = 0; i < numPoints; i++)
     {
         float x = dis(gen);
@@ -170,22 +223,24 @@ void splitInTwoGroups(std::vector<Point> *points, sf::Color otherColor)
     }
 }
 
-
-std::vector<std::vector<Point>> getBatches(std::vector<Point> points, int nBatches)
+std::vector<std::vector<Point>> getBatches(std::vector<Point> points, int batchSize)
 {
-    int batchesSize = points.size()/nBatches;
     std::vector<std::vector<Point>> batches;
+    int nBatches = (points.size() + batchSize - 1) / batchSize;
 
-    for (int i = 0; i < nBatches-1; ++i) {
-        auto start = points.begin() + i*batchesSize;
-        auto end = start + batchesSize;
+    for (int i = 0; i < nBatches; ++i)
+    {
+        auto start = points.begin() + i * batchSize;
+        auto end = start + batchSize;
+        if (end > points.end())
+        {
+            end = points.end();
+        }
         batches.emplace_back(start, end);
     }
-    batches.emplace_back(points.begin() + (nBatches-1)*batchesSize, points.end());
 
     return batches;
 }
-
 
 std::vector<Point> shuffle(std::vector<Point> points)
 {

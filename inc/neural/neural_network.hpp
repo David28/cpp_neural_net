@@ -7,7 +7,7 @@ private:
     std::vector<int> layerSizes;
 public:
     std::vector<Layer> layers;
-    NeuralNetwork(std::vector<int> layerSizes);
+    NeuralNetwork(std::vector<int> layerSizes, ActivationType activation);
     std::pair<int, std::vector<double>> classify(std::vector<double> inputs);
     std::vector<double> calculateOutputs(std::vector<double> inputs);
     int maxValueIndex(std::vector<double> values);

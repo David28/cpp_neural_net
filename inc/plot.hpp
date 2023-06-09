@@ -18,7 +18,7 @@ public:
 
 };
 
-class Plot {
+class ScatterPlot {
 private:
     std::vector<Point> points; // list of points
     sf::Vector2i graphSize; 
@@ -27,12 +27,24 @@ private:
     sf::Vector2f origin;
 
 public:
-    Plot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window);
-    ~Plot();
-    void drawPlot(sf::Uint8 *pixels);
+    ScatterPlot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window);
+    ~ScatterPlot();
+    void drawPlot(sf::Sprite background);
     void addPoint(Point newPoint);
 };
 
+class TimePlot {
+public:
+    TimePlot(sf::Vector2i graphSize, sf::RenderWindow *window);
+    void addPoint(float y);
+    void drawTimePlot();
+
+private:
+    std::vector<float> points;
+    sf::Vector2i graphSize;
+    sf::RenderWindow *window;
+    sf::Vector2f origin;
+};
 
 std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints);
 
@@ -45,4 +57,4 @@ void splitInTwoGroups(std::vector<Point> *points, sf::Color otherColor);
 
 std::vector<Point> shuffle(std::vector<Point> points);
 
-std::vector<std::vector<Point>> getBatches(std::vector<Point> points, int nBatches);
+std::vector<std::vector<Point>> getBatches(std::vector<Point> points, int batchSize);
