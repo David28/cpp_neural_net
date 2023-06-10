@@ -57,7 +57,7 @@ int main()
 	sf::Shader shader;
 	printf("Loading data...\n");
 	// Load the shader from a file
-	if (!shader.loadFromFile("./src/shaders/shader.vert", "./src/shaders/shader.frag"))
+	if (!shader.loadFromFile("assets/shaders/shader.vert", "assets/shaders/shader.frag"))
 	{
 		printf("Failed to load shaders...\n");
 
