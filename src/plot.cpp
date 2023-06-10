@@ -24,14 +24,14 @@ void ScatterPlot::addPoint(Point newPoint)
     points.push_back(newPoint);
 }
 
-void ScatterPlot::drawPlot(sf::Sprite background)
+void ScatterPlot::drawPlot(sf::Sprite background, sf::Shader &shader)
 {
 
     background.setPosition(sf::Vector2f(origin.x - graphSize
                                                            .x /
                                                        2,
                                         origin.y - graphSize.y / 2));
-    window->draw(background);
+    window->draw(background, &shader);
 
     // draw X-axis
     sf::VertexArray xAxis(sf::PrimitiveType::Lines, 2);
@@ -102,10 +102,10 @@ void TimePlot::drawTimePlot()
         // draw points
         for (int i = 0; i < points.size() - 1; i++)
         {
-            int plotPoint = i*2;
+            int plotPoint = i * 2;
 
-            double x1 = (((double)i)/points.size());
-            double x2 = (((double)i+1)/points.size());
+            double x1 = (((double)i) / points.size());
+            double x2 = (((double)i + 1) / points.size());
             float y1 = points[i];
             float y2 = points[i + 1];
             plot[plotPoint].position = sf::Vector2f(x1 * graphSize.x + origin.x, -y1 * graphSize.y + origin.y);
@@ -114,8 +114,6 @@ void TimePlot::drawTimePlot()
                                                         -y2 * graphSize.y + origin.y);
             plot[plotPoint].color = sf::Color::Red;
             plot[plotPoint + 1].color = sf::Color::Red;
-
-
         }
         window->draw(plot);
     }
@@ -168,7 +166,7 @@ std::vector<double> Point::inputs()
     return res;
 }
 
-std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints)
+std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints, std::vector<double> expected)
 {
     std::vector<Point> points;
     unsigned seed = time(nullptr);
@@ -178,48 +176,64 @@ std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints)
     {
         float x = dis(gen);
         float y = dis(gen);
-        std::vector<double> expectedOutputs;
-        expectedOutputs.push_back(-1);
-        points.push_back(Point(sf::Vector2f(x, y), sf::Color::Red, expectedOutputs));
+        points.push_back(Point(sf::Vector2f(x, y), sf::Color::Red, expected));
     }
 
     return points;
 }
 
-void splitInTwoGroups(std::vector<Point> *points, sf::Color otherColor)
+void splitInGroups(std::vector<Point> *points, sf::Color otherColor, int groupSize, int nSubGroups, std::vector<double> expected)
 {
 
     // Define random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, points->size() - 1);
-    // Choose a random Point to start with
-    int i = dis(gen);
 
     // Calculate group size between 40% and 60% of total number of points
     int minGroupSize = (int)std::ceil(0.4 * points->size());
     int maxGroupSize = (int)std::floor(0.6 * points->size());
-    int groupSize = dis(gen) % (maxGroupSize - minGroupSize + 1) + minGroupSize;
+    int subGroupSize = groupSize / nSubGroups;
 
-    // Sort remaining points by distance to random Point
-    std::vector<int> sortedIdxs(points->size() - 2);
-    for (int j = 0; j < sortedIdxs.size(); j++)
+    for (size_t subGroup = 0; subGroup < nSubGroups; subGroup++)
     {
-        sortedIdxs[j] = j;
+        // Choose a random Point to start with
+        int i = dis(gen);
+        // Sort remaining points by distance to random Point
+        std::vector<int> sortedIdxs(points->size() - 2);
+        for (int j = 0; j < sortedIdxs.size(); j++)
+        {
+            sortedIdxs[j] = j;
+        }
+        std::sort(sortedIdxs.begin(), sortedIdxs.end(), [&](int a, int b)
+                  { return euclideanDist((*points)[i].getPosition(), (*points)[a].getPosition()) < euclideanDist((*points)[i].getPosition(), (*points)[b].getPosition()); });
+        // Assign colors to points based on distance to random Point
+        int countGroup1 = 0;
+        for (int j = 0; j < sortedIdxs.size(); j++)
+        {
+            if (countGroup1 > subGroupSize)
+                break;
+            (*points)[sortedIdxs[j]].setColor(otherColor);
+            (*points)[sortedIdxs[j]].setExpectedOutputs(expected);
+            countGroup1++;
+        }
     }
-    std::sort(sortedIdxs.begin(), sortedIdxs.end(), [&](int a, int b)
-              { return euclideanDist((*points)[i].getPosition(), (*points)[a].getPosition()) < euclideanDist((*points)[i].getPosition(), (*points)[b].getPosition()); });
-    // Assign colors to points based on distance to random Point
-    int countGroup1 = 0;
-    for (int j = 0; j < sortedIdxs.size(); j++)
+}
+
+void splitInRadius(std::vector<Point> *points, sf::Color otherColor, std::vector<double> expected, double outerRadius, double innerRadius)
+{
+
+    // Choose a random Point to start with
+    sf::Vector2f center = sf::Vector2f();
+    // Assign colors to points within radius of random Point
+    for (int j = 0; j < points->size(); j++)
     {
-        if (countGroup1 > groupSize)
-            break;
-        std::vector<double> expectedOutputs;
-        expectedOutputs.push_back(1);
-        (*points)[sortedIdxs[j]].setColor(otherColor);
-        (*points)[sortedIdxs[j]].setExpectedOutputs(expectedOutputs);
-        countGroup1++;
+        double distance = euclideanDist((*points)[j].getPosition(), center);
+        if (distance <= outerRadius && distance > innerRadius && (*points)[j].getColor() != otherColor)
+        {
+            (*points)[j].setColor(otherColor);
+            (*points)[j].setExpectedOutputs(expected);
+        }
     }
 }
 

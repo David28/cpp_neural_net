@@ -2,7 +2,6 @@ OBJECTOS = utils.o plot.o activation.o layer.o neural_network.o main.o
 
 all: link open
 
-
 %.o: src/%.cpp $($@)
 	g++ -I inc -o obj/$@ -c $<	
 

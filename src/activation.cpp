@@ -46,14 +46,58 @@ double Activation::derivative(double input)
     return res;
 }
 
+double Activation::rescaleToActivation(double x, std::pair<double, double> oldScale)
+{
+    double res = x;
+    switch (type)
+    {
+    case RELU:
+        res = rescale(x, oldScale, std::make_pair(0.f, 1.f));
+        break;
+    case SIGMOID:
+        res = rescale(x, oldScale, std::make_pair(0.f, 1.f));
+        break;
+    case SILU:
+        res = rescale(x, oldScale, std::make_pair(-1.f, 1.f));
+        break;
+    default:
+        break;
+    }
+
+    return res;
+}
+double Activation::rescaleByActivation(double x, std::pair<double, double> newScale)
+{
+    double res = x;
+    switch (type)
+    {
+    case RELU:
+        res = rescale(x, std::make_pair(0.f, 1.f), newScale);
+        break;
+    case SIGMOID:
+        res = rescale(x, std::make_pair(0.f, 1.f), newScale);
+        break;
+    case SILU:
+        res = rescale(x, std::make_pair(-1.f, 1.f), newScale);
+        break;
+    default:
+        break;
+    }
+
+    return res;
+}
+ActivationType Activation::getType()
+{
+    return this->type;
+}
 double activateReLu(double input)
 {
-    return __max(0, input);
+    return __max(0.f, input);
 }
 
 double derivateReLu(double input)
 {
-    return (input > 0) ? 1 : 0;
+    return (input > 0.f) ? 1.f : 0.f;
 }
 
 double activateSigmoid(double input)
@@ -69,11 +113,11 @@ double derivateSigmoid(double input)
 
 double activateSiLU(double input)
 {
-    return input / (1 + exp(-input));
+    return input / (1.f + exp(-input));
 }
 
 double derivateSiLU(double input)
 {
-    double sig = 1 / (1 + exp(-input));
-    return input * sig * (1 - sig) + sig;
+    double sig = 1.f / (1.f + exp(-input));
+    return input * sig * (1.f - sig) + sig;
 }

@@ -1,6 +1,7 @@
 #include <neural/neural_network.hpp>
 #include <cfloat>
-NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, ActivationType activation) : layerSizes(layerSizes)
+
+NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, Activation activation) : layerSizes(layerSizes)
 {
     for (int i = 0; i < layerSizes.size() - 1; i++)
         layers.push_back(Layer(layerSizes[i], layerSizes[i + 1],activation));

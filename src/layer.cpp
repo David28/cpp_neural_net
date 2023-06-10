@@ -1,7 +1,7 @@
 #include <neural/layer.hpp>
 #include <chrono>
 #include <iostream>
-Layer::Layer(int numNodesIn, int numNodesOut, ActivationType activation) :
+Layer::Layer(int numNodesIn, int numNodesOut, Activation activation) :
  numNodesIn(numNodesIn), numNodesOut(numNodesOut), activation(activation)
 {
 

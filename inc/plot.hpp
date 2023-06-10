@@ -1,22 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-class Point {
-private:
-    sf::Vector2f pos;
-    sf::Color color;
+#include <activation/activation.hpp>
+#include <point.hpp>
 
-public:
-    Point(sf::Vector2f pos, sf::Color color);
-    Point(sf::Vector2f position, sf::Color color, std::vector<double> expectedOutputs);
-    void drawPoint(sf::Vector2f origin, float width, sf::RenderWindow *window, sf::Vector2f scale);
-    sf::Vector2f getPosition();
-    sf::Color getColor();
-    void setColor(sf::Color newColor);
-    void setExpectedOutputs(std::vector<double> expectedOutputs);
-    std::vector<double> inputs();
-    std::vector<double> expectedOutputs;
-
-};
 
 class ScatterPlot {
 private:
@@ -29,7 +15,7 @@ private:
 public:
     ScatterPlot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window);
     ~ScatterPlot();
-    void drawPlot(sf::Sprite background);
+    void drawPlot(sf::Sprite background, sf::Shader &shader);
     void addPoint(Point newPoint);
 };
 
@@ -46,15 +32,15 @@ private:
     sf::Vector2f origin;
 };
 
-std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints);
+std::vector<Point> getRandomPoints(sf::Vector2i graphSize, int numPoints,std::vector<double> expected);
 
 // How to randomly split in groups?
 /*
     Take a random Point, change his color. Now calculate euclidean distance to all other points. Change the color of the closest.
     The range is 40%-60% of a group
 */
-void splitInTwoGroups(std::vector<Point> *points, sf::Color otherColor);
-
+void splitInGroups(std::vector<Point> *points, sf::Color otherColor, int groupSize, int nSubGroups,std::vector<double> expected);
+void splitInRadius(std::vector<Point> *points, sf::Color otherColor, std::vector<double> expected, double outerRadius, double innerRadius);
 std::vector<Point> shuffle(std::vector<Point> points);
 
 std::vector<std::vector<Point>> getBatches(std::vector<Point> points, int batchSize);

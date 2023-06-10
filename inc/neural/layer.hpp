@@ -21,7 +21,7 @@ public:
 	// Cost gradient with respect to weights and with respect to biases
 	std::vector<double> costGradientW;
 	std::vector<double> costGradientB;
-    Layer(int numNodesIn, int numNodesOut, ActivationType activation);
+    Layer(int numNodesIn, int numNodesOut, Activation activation);
 	// Calculate layer output activations
 	std::vector<double> calculateOutputs(std::vector<double> inputs);
 	double getWeight(int nodeIn, int nodeOut);
