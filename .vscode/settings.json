@@ -53,7 +53,18 @@
         "numeric": "cpp",
         "random": "cpp",
         "condition_variable": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "any": "cpp",
+        "bitset": "cpp",
+        "codecvt": "cpp",
+        "cstring": "cpp",
+        "unordered_set": "cpp",
+        "filesystem": "cpp",
+        "regex": "cpp",
+        "iomanip": "cpp",
+        "cinttypes": "cpp",
+        "typeindex": "cpp",
+        "variant": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.autocompleteAddParentheses": true

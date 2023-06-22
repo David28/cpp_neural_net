@@ -16,6 +16,7 @@ public:
     ScatterPlot(std::vector<Point> points, sf::Vector2i graphSize, int pointWidth, sf::RenderWindow* window);
     ~ScatterPlot();
     void drawPlot(sf::Sprite background, sf::Shader &shader);
+    void drawPlot();
     void addPoint(Point newPoint);
 };
 

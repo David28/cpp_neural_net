@@ -21,8 +21,7 @@ std::pair<int, std::vector<double>> NeuralNetwork::classify(std::vector<double> 
 std::vector<double> NeuralNetwork::calculateOutputs(std::vector<double> inputs)
 {
     for (int i = 0; i < layers.size(); i++) {
-        Layer *layer = &layers[i];
-        inputs = layer->calculateOutputs(inputs);
+        inputs = layers[i].calculateOutputs(inputs);
     }
 
     return inputs;
@@ -46,48 +45,55 @@ int NeuralNetwork::maxValueIndex(std::vector<double> values)
 
 void NeuralNetwork::learn(std::vector<Point> data, double learnRate)
 {
-
-    const double h = 0.0001; // No derivate for now
-    double originalCost = cost(data);
-
-    for (int i = 0; i < layers.size(); i++) {
-        Layer *layer = &layers[i];
-
-        for (int nodeIn = 0; nodeIn < layer->numNodesIn; nodeIn++)
-        {
-            for (int nodeOut = 0; nodeOut < layer->numNodesOut; nodeOut++)
-            {
-                int weightIndex = layer->getFlatWeightIndex(nodeIn,nodeOut);
-                layer->setWeight(nodeIn,nodeOut, layer->getWeight(nodeIn,nodeOut) + h);
-                double deltaCost = cost(data) - originalCost;
-
-                layer->setWeight(nodeIn,nodeOut, layer->getWeight(nodeIn,nodeOut) - h);
-
-                layer->costGradientW[weightIndex] = deltaCost/h;
-            }
-        }
-
-        for (int bias = 0; bias < layer->numNodesOut; bias++)
-        {
-            layer->setBias(bias, layer->getBias(bias)+ h) ;
-            double deltaCost = cost(data) - originalCost;
-            layer->setBias(bias, layer->getBias(bias)- h) ;
-            
-            layer->costGradientB[bias] = deltaCost/h;
-        }
+    for (Point dataPoint : data) {
+        updateAllGradients(dataPoint);
     }
 
-    applyAllGradients(learnRate);
+    applyAllGradients(learnRate/data.size());
+
 }
 
 
 void NeuralNetwork::applyAllGradients(double learnRate) {
     for (int i = 0; i < layers.size(); i++) {
-        Layer *layer = &layers[i];
+        Layer &layer = layers[i];
 
-        layer->applyGradients(learnRate);
+        layer.applyGradients(learnRate);
     }
 }
+
+void NeuralNetwork::clearAllGradients() {
+
+    for (int i = 0; i < layers.size(); i++) {
+        Layer &layer = layers[i];
+        layer.clearGradients();
+    }
+}
+
+void NeuralNetwork::updateAllGradients(Point dataPoint) {
+		// Feed data through the network to calculate outputs.
+		// Save all inputs/weightedinputs/activations along the way to use for backpropagation.
+		calculateOutputs(dataPoint.inputs());
+
+		// -- Backpropagation --
+		int outputLayerIndex = layers.size() - 1;
+		Layer &outputLayer = layers[outputLayerIndex];
+
+		// Update output layer gradients
+        std::vector<double> nodeValues = outputLayer.calculateOutputLayerNodeValues(dataPoint.expectedOutputs);
+		outputLayer.updateGradients(nodeValues);
+
+		// Update all hidden layer gradients
+		for (int i = outputLayerIndex - 1; i >= 0; i--)
+		{
+			Layer &hiddenLayer = layers[i];
+            nodeValues = hiddenLayer.calculateHiddenLayerNodeValues(layers[i + 1], nodeValues);
+			hiddenLayer.updateGradients(nodeValues);
+		}
+}
+
+
+
 
 
 double NeuralNetwork::cost(std::vector<Point> data) {
@@ -107,7 +113,7 @@ double NeuralNetwork::cost(Point dataPoint) {
 
     double cost = 0;
     for (int nodeOut = 0; nodeOut < outputs.size(); nodeOut++)
-        cost += outputLayer.nodeCost(outputs[nodeOut], dataPoint.expectedOutputs[nodeOut]);
+        cost += outputLayer.nodeCost(dataPoint.expectedOutputs[nodeOut],outputs[nodeOut]);
     return cost;
 }
 

@@ -16,8 +16,8 @@ int pointCount = 1000;
 int epochCount = 0;
 int dataset = 1; // (Temporary) but 0 for normal subgroups, 1 for radius
 // HyperParameters (missing the layers, its down bellow)
-double learnRate = 0.1;
-int batchSize = 100;
+double learnRate = 0.01;
+int batchSize = 10;
 Activation activation = Activation(RELU);
 
 void updateUniforms(sf::Shader &shader, const std::vector<int> &layerSizes, const std::vector<float> &flatWeights, const std::vector<float> &flatBiases, sf::Vector2i graphSize)
@@ -92,10 +92,10 @@ int main()
 		splitInGroups(&points, sf::Color::Blue, points.size()/2, 3, expectedBlue);
 	else
 		splitInRadius(&points, sf::Color::Blue, expectedBlue, 0.8,0.4);
-	ScatterPlot scatter_plot(points, graphSize, 2, &window);
+	
 	TimePlot costPlot(costGraphSize, &window);
 	std::vector<int> layerSizes;
-	layerSizes = (dataset == 0)? std::vector<int>{2,4,1}:std::vector<int>{2,10,5,1};
+	layerSizes = (dataset == 0)? std::vector<int>{2,5,1}:std::vector<int>{2,10,5,1};
 	std::vector<std::vector<Point>> batches;
 	NeuralNetwork neuralNetwork(layerSizes, activation);
 	updateUniforms(shader, layerSizes, getFlatWeights(neuralNetwork), getFlatBiases(neuralNetwork),graphSize);
@@ -109,15 +109,15 @@ int main()
 	bool eachBatch = false;
 		
 	int correct = 0;
+			double cost;
+	ScatterPlot scatter_plot(points, graphSize, 2, &window);
 
 	while (window.isOpen())
 	{
-
 		double frameTime = dt.restart().asSeconds();
 		deltaTime = (frameTime < 1 / 60.0) ? frameTime : 1 / 60.0;
 		sf::Event event;
 
-		sf::Vector2i Point;
 
 		while (window.pollEvent(event))
 		{
@@ -170,8 +170,7 @@ int main()
 				do
 				{
 					neuralNetwork.learn(batches[curBatch], learnRate);
-					double cost = neuralNetwork.cost(points);
-					costPlot.addPoint(activation.rescaleByActivation(cost, std::make_pair(0.f,1.f)));
+					
 
 					curBatch = (curBatch + 1) % batches.size();
 				} while (eachBatch && curBatch != 0);
@@ -179,11 +178,8 @@ int main()
 				if (curBatch == 0)
 				{
 					epochCount++;
-					// epoch ended
-					// // Draw each pix SFML's built-in anti-aliasing
 				}
 				updateUniforms(shader, layerSizes, getFlatWeights(neuralNetwork), getFlatBiases(neuralNetwork),graphSize);
-				
 				for (size_t i = 0; i < points.size(); i++)
 				{
 					double c = neuralNetwork.classify(points[i].inputs()).second[0];
@@ -192,15 +188,16 @@ int main()
 						(points[i].getColor() == sf::Color::Red && c < bound))
 						correct++;
 				}
+				cost = 1.0 - ((float) correct)/points.size();
+				costPlot.addPoint(cost);
 			}
-			
-			
 			scatter_plot.drawPlot(sprite, shader);
 			costPlot.drawTimePlot();
 			sf::Text text(std::to_string(((int)floor(1 / deltaTime))) + "\n" +
 							  std::to_string(correct) + "/" + std::to_string(points.size()) + "\n" +
 							  "Learn Rate: " + std::to_string(learnRate) + "\n" +
-							  "Epoch: " + std::to_string(epochCount),
+							  "Epoch: " + std::to_string(epochCount)+"\n"+
+							  "Cost: " +std::to_string(cost),
 						  font);
 			text.setCharacterSize(10);
 			text.setPosition(winSize_x * 0.05, winSize_y * 0.05);

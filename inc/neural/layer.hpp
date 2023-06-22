@@ -12,6 +12,10 @@ private:
     
 
 public:
+	std::vector<double> inputs;
+	std::vector<double> weightedInputs;
+	std::vector<double> activations;
+
 	int numNodesIn;
 	int numNodesOut;
 
@@ -30,6 +34,11 @@ public:
 	void setBias(int bias, double newBias);
 	int getFlatWeightIndex(int inputNeuronIndex, int outputNeuronIndex);
 	void applyGradients(double learnRate);
+	void clearGradients();
+	void updateGradients(std::vector<double> nodeValues);
+	std::vector<double> calculateOutputLayerNodeValues(std::vector<double>  expectedOutputs);
+	std::vector<double> calculateHiddenLayerNodeValues(Layer oldLayer, std::vector<double> oldNodeValues);
+
 	double nodeCost(double expected, double actual);
 };
 

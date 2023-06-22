@@ -32,6 +32,11 @@ void ScatterPlot::drawPlot(sf::Sprite background, sf::Shader &shader)
                                                        2,
                                         origin.y - graphSize.y / 2));
     window->draw(background, &shader);
+    drawPlot();
+}
+
+void ScatterPlot::drawPlot()
+{
 
     // draw X-axis
     sf::VertexArray xAxis(sf::PrimitiveType::Lines, 2);
@@ -61,6 +66,7 @@ void ScatterPlot::drawPlot(sf::Sprite background, sf::Shader &shader)
         Point.drawPoint(origin, pointWidth, window, sf::Vector2f(graphSize));
     }
 }
+
 
 TimePlot::TimePlot(sf::Vector2i graphSize, sf::RenderWindow *window)
     : graphSize(graphSize), window(window)
