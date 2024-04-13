@@ -6,7 +6,7 @@
 #include <math.h>
 #include <neural/neural_network.hpp>
 #include <plot.hpp>
-
+#include <menu.hpp>
 const int winSize_x = 1920;
 const int winSize_y = 1080;
 sf::RenderWindow window(sf::VideoMode(winSize_x, winSize_y), "Neural Net");
@@ -83,6 +83,30 @@ int main()
 	sf::Vector2i graphSize(winSize_x / 2, winSize_y / 2);
 	sf::Vector2i costGraphSize(winSize_x / 8, winSize_y / 8);
 
+	
+		
+	
+	sf::Event event;
+
+	Menu menu = Menu(&window, font);
+	while (window.isOpen() && !menu.done)
+	{
+		while (window.pollEvent(event))
+		{
+			menu.updateMenu(event);
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+		window.clear();
+		menu.drawMenu();
+		window.display();
+	}
+	pointCount = menu.options.pointCount;
+	dataset = menu.options.dataset;
+	learnRate = menu.options.learnRate;
+	batchSize = menu.options.batchSize;
+	activation = menu.options.activation;
+
 	//EXpected Outputs
 	std::vector<double> expectedRed = {activation.rescaleToActivation(-1, std::make_pair(-1.f,1.f))};
 	std::vector<double> expectedBlue = {activation.rescaleToActivation(1, std::make_pair(-1.f,1.f))};
@@ -108,16 +132,13 @@ int main()
 	sf::VertexArray pixels(sf::PrimitiveType::Quads, graphSize.x * graphSize.y * 4);
 	int curBatch = 0;
 	bool eachBatch = false;
-		
-	int correct = 0;
+int correct = 0;
 			double cost;
 	ScatterPlot scatter_plot(points, graphSize, 2, &window);
-
 	while (window.isOpen())
 	{
 		double frameTime = dt.restart().asSeconds();
 		deltaTime = (frameTime < 1 / 60.0) ? frameTime : 1 / 60.0;
-		sf::Event event;
 
 
 		while (window.pollEvent(event))

@@ -90,6 +90,22 @@ ActivationType Activation::getType()
 {
     return this->type;
 }
+
+std::string activationToString(ActivationType type)
+{
+    switch (type)
+    {
+    case RELU:
+        return "RELU";
+    case SIGMOID:
+        return "SIGMOID";
+    case SILU:
+        return "SILU";
+    default:
+        return "UNKNOWN";
+    }
+}
+
 double activateReLu(double input)
 {
     return (input > 0.f) ? input : 0.f;

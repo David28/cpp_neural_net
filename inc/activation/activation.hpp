@@ -1,13 +1,13 @@
 #ifndef ACTIVATION_HPP
 #define ACTIVATION_HPP
-
 #include <vector>
-
+#include <string>
 enum ActivationType {
-    RELU,
-    SIGMOID,
-    SILU
+    RELU = 0,
+    SIGMOID = 1,
+    SILU = 2
 };
+
 
 class Activation
 {
@@ -23,7 +23,7 @@ public:
     double rescaleToActivation(double x, std::pair<double, double> oldScale);  //diferent scales are needed for different activations
     ActivationType getType();
 };
-
+std::string activationToString(ActivationType type);
 
 
 double activateReLu(double input);

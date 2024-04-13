@@ -6,17 +6,17 @@ SFML_LIB = /usr/lib
 SRC_DIR = src
 OBJ_DIR = obj
 
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+SOURCES = $(wildcard $(SRC_DIR)/**.cpp)
 
 OBJECTOS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
 
 all: link
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	g++ -I $(SFML_INC) -I inc -o $@ -c $<
+	g++ -I inc -o $@ -c $<
 
 link: $(OBJECTOS)
-	g++ $(OBJECTOS) -o main -L /usr/lib -l sfml-graphics -l sfml-window -l sfml-system
+	g++ $(OBJECTOS) -o main -l sfml-graphics -l sfml-window -l sfml-system
 
 clean:
 	rm -f $(OBJ_DIR)/*.o main
