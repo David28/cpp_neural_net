@@ -1,11 +1,22 @@
 OBJECTOS = utils.o plot.o activation.o layer.o neural_network.o main.o
 
-all: link open
+SFML_INC = /usr/include
+SFML_LIB = /usr/lib
 
-%.o: src/%.cpp $($@)
-	g++ -I inc -o obj/$@ -c $<	
+SRC_DIR = src
+OBJ_DIR = obj
+
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+
+OBJECTOS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
+
+all: link
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	g++ -I $(SFML_INC) -I inc -o $@ -c $<
 
 link: $(OBJECTOS)
-	g++ $(addprefix obj/,$(OBJECTOS)) -o main -L lib -l sfml-graphics -l sfml-window -l sfml-system
-open:
-	main.exe	
+	g++ $(OBJECTOS) -o main -L /usr/lib -l sfml-graphics -l sfml-window -l sfml-system
+
+clean:
+	rm -f $(OBJ_DIR)/*.o main

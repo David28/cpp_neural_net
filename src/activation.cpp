@@ -92,7 +92,7 @@ ActivationType Activation::getType()
 }
 double activateReLu(double input)
 {
-    return __max(0.f, input);
+    return (input > 0.f) ? input : 0.f;
 }
 
 double derivateReLu(double input)
