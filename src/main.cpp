@@ -20,6 +20,7 @@ int dataset = 1; // (Temporary) but 0 for normal subgroups, 1 for radius
 double learnRate = 0.01;
 int batchSize = 10;
 Activation activation = Activation(RELU);
+std::vector<int> layerSizes;
 
 void updateUniforms(sf::Shader &shader, const std::vector<int> &layerSizes, const std::vector<float> &flatWeights, const std::vector<float> &flatBiases, sf::Vector2i graphSize)
 {
@@ -106,6 +107,7 @@ int main()
 	learnRate = menu.options.learnRate;
 	batchSize = menu.options.batchSize;
 	activation = menu.options.activation;
+	layerSizes = menu.options.layerSizes;
 
 	//EXpected Outputs
 	std::vector<double> expectedRed = {activation.rescaleToActivation(-1, std::make_pair(-1.f,1.f))};
@@ -119,8 +121,6 @@ int main()
 		splitInRadius(&points, sf::Color::Blue, expectedBlue, 0.8,0.4);
 	
 	TimePlot costPlot(costGraphSize, &window);
-	std::vector<int> layerSizes;
-	layerSizes = (dataset == 0)? std::vector<int>{2,5,1}:std::vector<int>{2,10,5,1};
 	std::vector<std::vector<Point>> batches;
 	NeuralNetwork neuralNetwork(layerSizes, activation);
 	updateUniforms(shader, layerSizes, getFlatWeights(neuralNetwork), getFlatBiases(neuralNetwork),graphSize);
@@ -221,7 +221,7 @@ int correct = 0;
 							  "Epoch: " + std::to_string(epochCount)+"\n"+
 							  "Cost: " +std::to_string(cost),
 						  font);
-			text.setCharacterSize(10);
+			text.setCharacterSize(20);
 			text.setPosition(winSize_x * 0.05, winSize_y * 0.05);
 			window.draw(text);
 			window.display();

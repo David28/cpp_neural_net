@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <activation/activation.hpp>
-
+#include <vector>
 
 class RunOptions {
 public:
@@ -10,6 +10,7 @@ public:
     double learnRate = 0.01;
     int batchSize = 10;
     Activation activation = Activation(RELU);
+    std::vector<int> layerSizes = {2, 4, 4, 2};
     RunOptions();
 };
 
